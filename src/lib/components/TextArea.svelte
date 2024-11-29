@@ -1,34 +1,28 @@
 <script lang="ts">
-	import type { HTMLInputAttributes } from 'svelte/elements';
+	import type { HTMLTextareaAttributes } from 'svelte/elements';
 
 	let {
 		value,
 		placeholder,
 		id,
-		type = 'text',
 		label,
 		errors,
 		...props
-	}: { label: string; errors?: string[] } & HTMLInputAttributes = $props();
+	}: { label: string; errors?: string[] } & HTMLTextareaAttributes = $props();
 </script>
 
-<div class="form-control mb-2 w-full max-w-lg">
+<div class="form-control w-full max-w-lg">
 	<label for={id} class="label pb-1 font-medium">
 		<span class="label-text">{label}</span>
 	</label>
-
-	<input
+	<textarea
 		{id}
-		{placeholder}
-		{type}
 		name={id}
+		{placeholder}
 		bind:value
-		class={type === 'file'
-			? 'file-input file-input-bordered w-full max-w-lg'
-			: 'input input-bordered w-full max-w-lg'}
+		class="textarea textarea-bordered h-24 resize-none"
 		{...props}
-	/>
-
+	></textarea>
 	{#if errors}
 		{#each errors as error}
 			<label for={id} class="label py-0 pt-1">

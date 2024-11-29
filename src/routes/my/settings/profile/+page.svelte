@@ -6,7 +6,7 @@
 	import { Icon, Pencil } from 'svelte-hero-icons';
 	import type { PageData } from './$types';
 
-	let { data }: { data: PageData } = $props();
+	let { data, form }: { data: PageData; form: FormData } = $props();
 	let loading = $state(false);
 
 	const showPreview = (event: Event) => {
@@ -75,8 +75,23 @@
 				onchange={showPreview}
 				disabled={loading}
 			/>
+			{#if form?.errors?.avatar}
+				{#each form?.errors?.avatar as error}
+					<label for="avatar" class="label py-0 pt-1">
+						<span class="label-text-alt text-error">
+							{error}
+						</span>
+					</label>
+				{/each}
+			{/if}
 		</div>
-		<Input label="Name" name="name" value={data?.user?.name} disabled={loading} />
+		<Input
+			label="Name"
+			name="name"
+			value={data?.user?.name}
+			disabled={loading}
+			errors={form?.errors?.name}
+		/>
 		<div class="w-full max-w-lg pt-3">
 			<button class="btn btn-primary w-full max-w-lg" type="submit" disabled={loading}>
 				<span>Update Profile</span>

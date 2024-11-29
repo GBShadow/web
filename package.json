@@ -37,7 +37,10 @@
 	},
 	"dependencies": {
 		"daisyui": "^4.12.14",
+		"object-to-formdata": "^4.5.1",
 		"pocketbase": "^0.21.5",
-		"svelte-hero-icons": "^5.2.0"
+		"svelte-french-toast": "^1.2.0",
+		"svelte-hero-icons": "^5.2.0",
+		"zod": "^3.23.8"
 	}
 }

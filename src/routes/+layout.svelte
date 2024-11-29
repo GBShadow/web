@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getImageUrl } from '$lib/utils';
 	import type { Snippet } from 'svelte';
+	import { Toaster } from 'svelte-french-toast';
 	import { CodeBracket, Icon } from 'svelte-hero-icons';
 	import '../app.css';
 	import type { LayoutData } from './$types';
@@ -13,8 +14,9 @@
 	let { children, data }: Props = $props();
 </script>
 
-<nav class="min-h-full">
-	<div class="navbar border-b bg-base-100">
+<Toaster />
+<div class="min-h-full">
+	<nav class="navbar border-b bg-base-100">
 		<div class="flex-1">
 			<a href="/" class="btn btn-ghost text-xl normal-case"
 				><Icon class="size-8" src={CodeBracket} /></a
@@ -28,7 +30,7 @@
 				</div>
 			{:else}
 				<div class="dropdown dropdown-end mr-4">
-					<a href="/my/projects/new" class="btn btn-primary">Add project</a>
+					<a href="/projects/new" class="btn btn-primary">Add project</a>
 				</div>
 				<div class="dropdown dropdown-end">
 					<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -66,10 +68,10 @@
 				</div>
 			{/if}
 		</div>
-	</div>
-</nav>
-<div class="py-10">
-	<div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-		{@render children()}
+	</nav>
+	<div class="py-10">
+		<div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+			{@render children()}
+		</div>
 	</div>
 </div>

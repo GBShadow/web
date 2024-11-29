@@ -1,7 +1,33 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { Input } from '$lib/components';
+	import toast from 'svelte-french-toast';
 	import type { ActionData } from './$types';
 	let { form }: { form: ActionData } = $props();
+
+	let loading = false;
+	const submitLogin = () => {
+		loading = true;
+		return async ({ result, update }) => {
+			switch (result.type) {
+				case 'success':
+					await update();
+					toast.success('Login successful');
+
+					break;
+				case 'invalid':
+					toast.error('Invalid credentials');
+					await update();
+					break;
+				case 'error':
+					toast.error(result.error.message);
+					break;
+				default:
+					await update();
+			}
+			loading = false;
+		};
+	};
 </script>
 
 <div class="flex h-full w-full flex-col items-center">
@@ -18,13 +44,19 @@
 		action="?/login"
 		method="POST"
 		class="flex w-full flex-col items-center space-y-2 pt-4"
-		use:enhance
+		use:enhance={submitLogin}
 	>
 		<div class="form-control w-full max-w-md">
 			<label for="email" class="label pb-1 font-medium">
 				<span class="label-text">E-mail</span>
 			</label>
-			<input type="email" name="email" id="email" class="input input-bordered w-full max-w-md" />
+			<Input
+				type="email"
+				id="email"
+				label="Email"
+				value={form?.data?.email ?? ''}
+				errors={form?.errors?.email}
+			/>
 		</div>
 		<div class="form-control w-full max-w-md">
 			<label for="password" class="label pb-1 font-medium">

@@ -1,5 +1,7 @@
-import { serializedNonPOJOs } from '$lib/utils';
-import { error, redirect } from '@sveltejs/kit';
+import { updateProjectSchema } from '$lib/schemas';
+import { serializedNonPOJOs, validateData } from '$lib/utils';
+import { error, fail, redirect } from '@sveltejs/kit';
+import { serialize } from 'object-to-formdata';
 import type { ClientResponseError } from 'pocketbase';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -40,16 +42,26 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 export const actions: Actions = {
 	updateProject: async ({ locals, request, params }) => {
-		const formData = await request.formData();
+		const body = await request.formData();
 
-		const thumbnail = formData.get('thumbnail') as File;
+		const thumb = body.get('thumbnail') as File;
 
-		if (thumbnail.size === 0) {
-			formData.delete('thumbnail');
+		if (thumb.size === 0) {
+			body.delete('thumbnail');
+		}
+
+		const { formData, errors } = await validateData(body, updateProjectSchema);
+		const { thumbnail, ...rest } = formData;
+
+		if (errors) {
+			return fail(400, {
+				data: rest,
+				errors: errors.fieldErrors
+			});
 		}
 
 		try {
-			await locals.pb.collection('projects').update(params.projectId, formData);
+			await locals.pb.collection('projects').update(params.projectId, serialize(formData));
 		} catch (_err) {
 			const err = _err as ClientResponseError;
 			console.log('Error: ', err);

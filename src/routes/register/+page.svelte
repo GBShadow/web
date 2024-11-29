@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { Input } from '$lib/components';
+
+	let { form }: { form: FormData } = $props();
 </script>
 
 <div class="flex h-full w-full flex-col items-center">
@@ -18,40 +21,21 @@
 		class="flex w-full flex-col items-center space-y-2 pt-4"
 		use:enhance
 	>
-		<div class="form-control w-full max-w-md">
-			<label for="name" class="label pb-1 font-medium">
-				<span class="label-text">Name</span>
-			</label>
-			<input type="text" name="name" id="name" class="input input-bordered w-full max-w-md" />
-		</div>
-		<div class="form-control w-full max-w-md">
-			<label for="email" class="label pb-1 font-medium">
-				<span class="label-text">E-mail</span>
-			</label>
-			<input type="email" name="email" id="email" class="input input-bordered w-full max-w-md" />
-		</div>
-		<div class="form-control w-full max-w-md">
-			<label for="password" class="label pb-1 font-medium">
-				<span class="label-text">Password</span>
-			</label>
-			<input
-				type="password"
-				name="password"
-				id="password"
-				class="input input-bordered w-full max-w-md"
-			/>
-		</div>
-		<div class="form-control w-full max-w-md">
-			<label for="passwordConfirm" class="label pb-1 font-medium">
-				<span class="label-text">Confirm Password</span>
-			</label>
-			<input
-				type="password"
-				name="passwordConfirm"
-				id="passwordConfirm"
-				class="input input-bordered w-full max-w-md"
-			/>
-		</div>
+		<Input id="name" label="Name" value={form?.data?.name} errors={form?.errors?.name} />
+		<Input
+			type="email"
+			id="email"
+			label="Email"
+			value={form?.data?.email}
+			errors={form?.errors?.email}
+		/>
+		<Input type="password" id="password" label="Password" errors={form?.errors?.password} />
+		<Input
+			type="password"
+			id="passwordConfirm"
+			label="Confirm Password"
+			errors={form?.errors?.passwordConfirm}
+		/>
 		<div class="w-full max-w-md pt-2">
 			<button class="btn btn-primary w-full">Register</button>
 		</div>

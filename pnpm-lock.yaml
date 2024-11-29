@@ -11,12 +11,21 @@ importers:
       daisyui:
         specifier: ^4.12.14
         version: 4.12.14(postcss@8.4.49)
+      object-to-formdata:
+        specifier: ^4.5.1
+        version: 4.5.1
       pocketbase:
         specifier: ^0.21.5
         version: 0.21.5
+      svelte-french-toast:
+        specifier: ^1.2.0
+        version: 1.2.0(svelte@5.2.0)
       svelte-hero-icons:
         specifier: ^5.2.0
         version: 5.2.0(svelte@5.2.0)
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
     devDependencies:
       '@sveltejs/adapter-auto':
         specifier: ^3.0.0
@@ -1115,6 +1124,9 @@ packages:
     resolution: {integrity: sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==}
     engines: {node: '>= 6'}
 
+  object-to-formdata@4.5.1:
+    resolution: {integrity: sha512-QiM9D0NiU5jV6J6tjE1g7b4Z2tcUnKs1OPUi4iMb2zH+7jwlcUrASghgkFk9GtzqNNq8rTQJtT8AzjBAvLoNMw==}
+
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
     engines: {node: '>= 0.8.0'}
@@ -1438,11 +1450,21 @@ packages:
       svelte:
         optional: true
 
+  svelte-french-toast@1.2.0:
+    resolution: {integrity: sha512-5PW+6RFX3xQPbR44CngYAP1Sd9oCq9P2FOox4FZffzJuZI2mHOB7q5gJBVnOiLF5y3moVGZ7u2bYt7+yPAgcEQ==}
+    peerDependencies:
+      svelte: ^3.57.0 || ^4.0.0
+
   svelte-hero-icons@5.2.0:
     resolution: {integrity: sha512-KpdMTL0bOnkxciEmDXvyVF/R5nrZ1x1uHCSt9gMrrbEd3g5HSIaaDChOutTOfeI+cZ3EJbb+OcBH/lBzJr1aEw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       svelte: ^3.0.0 || ^4.0.0 || ^5.0.0
+
+  svelte-writable-derived@3.1.1:
+    resolution: {integrity: sha512-w4LR6/bYZEuCs7SGr+M54oipk/UQKtiMadyOhW0PTwAtJ/Ai12QS77sLngEcfBx2q4H8ZBQucc9ktSA5sUGZWw==}
+    peerDependencies:
+      svelte: ^3.2.1 || ^4.0.0-next.1 || ^5.0.0-next.94
 
   svelte@5.2.0:
     resolution: {integrity: sha512-LOowFhMB0CoTzDsa90snaICFMftrxKlYsOhH4YP1AamjCSDBZvtDq0yB5QY8LJA1tFftcmpAhmLCK/gAOFNrtw==}
@@ -1640,6 +1662,9 @@ packages:
 
   zimmerframe@1.1.2:
     resolution: {integrity: sha512-rAbqEGa8ovJy4pyBxZM70hg4pE6gDgaQ0Sl9M3enG3I0d6H4XSAM3GeNGLKnsBpuijUow064sf7ww1nutC5/3w==}
+
+  zod@3.23.8:
+    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
 snapshots:
 
@@ -2599,6 +2624,8 @@ snapshots:
 
   object-hash@3.0.0: {}
 
+  object-to-formdata@4.5.1: {}
+
   optionator@0.9.4:
     dependencies:
       deep-is: 0.1.4
@@ -2856,9 +2883,18 @@ snapshots:
     optionalDependencies:
       svelte: 5.2.0
 
+  svelte-french-toast@1.2.0(svelte@5.2.0):
+    dependencies:
+      svelte: 5.2.0
+      svelte-writable-derived: 3.1.1(svelte@5.2.0)
+
   svelte-hero-icons@5.2.0(svelte@5.2.0):
     dependencies:
       '@steeze-ui/heroicons': 2.4.0
+      svelte: 5.2.0
+
+  svelte-writable-derived@3.1.1(svelte@5.2.0):
+    dependencies:
       svelte: 5.2.0
 
   svelte@5.2.0:
@@ -3068,3 +3104,5 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zimmerframe@1.1.2: {}
+
+  zod@3.23.8: {}

@@ -1,6 +1,7 @@
 import Input from './Input.svelte';
 import Modal from './Modal.svelte';
 import MyProjectItem from './MyProjectItem.svelte';
-import Toast from './Toast.svelte';
+import ProjectCard from './ProjectCard.svelte';
+import TextArea from './TextArea.svelte';
 
-export { Input, Modal, MyProjectItem, Toast };
+export { Input, Modal, MyProjectItem, ProjectCard, TextArea };

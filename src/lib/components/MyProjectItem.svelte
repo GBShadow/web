@@ -2,6 +2,7 @@
 	import { applyAction, enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { getImageUrl } from '$lib/utils';
+	import toast from 'svelte-french-toast';
 	import Modal from './Modal.svelte';
 
 	type ProjectProps = {
@@ -24,8 +25,11 @@
 			switch (result.type) {
 				case 'success':
 					await invalidateAll();
+					toast.success('Project deleted with success.');
+
 					break;
 				case 'error':
+					toast.error('Could not delete project. Try again later.');
 					break;
 				default:
 					await applyAction(result);
@@ -55,7 +59,7 @@
 		<p>{project.tagline}</p>
 	</div>
 	<div class="flex w-full items-center justify-end">
-		<a href="/my/projects/{project.id}/edit" class="btn btn-outline">Edit project</a>
+		<a href="/projects/{project.id}/edit" class="btn btn-outline">Edit project</a>
 		<Modal label={project.id} checked={deleteProjectModal}>
 			{#snippet trigger()}
 				<span class="btn btn-error ml-2">Delete</span>

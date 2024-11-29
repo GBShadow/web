@@ -1,5 +1,7 @@
-<script>
+<script lang="ts">
 	import Input from '$lib/components/Input.svelte';
+
+	let { form }: { form: FormData } = $props();
 </script>
 
 <div class="flex h-full w-full flex-col">
@@ -7,9 +9,30 @@
 		<form action="?/updatePassword" method="POST" class="flex w-full flex-col space-y-2">
 			<h3 class="text-2xl font-medium">Change Password</h3>
 			<div class="divider"></div>
-			<Input id="oldPassword" label="Old Password" type="password" name="oldPassword" />
-			<Input id="password" label="New Password" type="password" name="password" />
-			<Input id="passwordConfirm" label="Confirm Password" type="password" name="passwordConfirm" />
+			<Input
+				id="oldPassword"
+				label="Old Password"
+				type="password"
+				name="oldPassword"
+				required
+				errors={form?.errors?.oldPassword}
+			/>
+			<Input
+				id="password"
+				label="New Password"
+				type="password"
+				name="password"
+				required
+				errors={form?.errors?.password}
+			/>
+			<Input
+				id="passwordConfirm"
+				label="Confirm Password"
+				type="password"
+				name="passwordConfirm"
+				required
+				errors={form?.errors?.passwordConfirm}
+			/>
 
 			<a href="/reset-password" class="text-primary hover:cursor-pointer hover:underline">
 				I forgot my password</a

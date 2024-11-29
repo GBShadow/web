@@ -14,7 +14,7 @@
 			{#if projects?.length === 0}
 				<p class="text-center text-3xl">☹️</p>
 				<p class="text-center text-3xl">Looks like you don't have any projects.</p>
-				<a href="/my/projects/new" class="btn btn-primary mt-4 max-w-md">Add One</a>
+				<a href="/projects/new" class="btn btn-primary mt-4 max-w-md">Add One</a>
 			{/if}
 
 			{#each projects as project}
