@@ -3,20 +3,24 @@
 	import { invalidateAll } from '$app/navigation';
 	import { Input, TextArea } from '$lib/components';
 	import { getImageUrl } from '$lib/utils';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import toast from 'svelte-french-toast';
 	import { Icon, Trash } from 'svelte-hero-icons';
 	import type { PageData } from './$types';
 
 	let { data, form }: { data: PageData; form: FormData } = $props();
 	let loading = false;
 
-	const submitUpdateProject = () => {
+	const submitUpdateProject: SubmitFunction = () => {
 		loading = true;
 		return async ({ result, update }) => {
 			switch (result.type) {
 				case 'success':
 					await invalidateAll();
+					toast.success('Success updating project');
 					break;
 				case 'error':
+					toast.error('Error updating project');
 					break;
 				default:
 					await update();

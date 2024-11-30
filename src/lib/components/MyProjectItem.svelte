@@ -2,6 +2,7 @@
 	import { applyAction, enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { getImageUrl } from '$lib/utils';
+	import type { SubmitFunction } from '@sveltejs/kit';
 	import toast from 'svelte-french-toast';
 	import Modal from './Modal.svelte';
 
@@ -18,7 +19,7 @@
 	let deleteProjectModal = $state(false);
 	let loading = $state(false);
 
-	const submitDeleteProject = () => {
+	const submitDeleteProject: SubmitFunction = () => {
 		return async ({ result }) => {
 			loading = true;
 			deleteProjectModal = true;

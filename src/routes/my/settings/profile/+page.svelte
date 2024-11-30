@@ -3,6 +3,8 @@
 	import { invalidateAll } from '$app/navigation';
 	import Input from '$lib/components/Input.svelte';
 	import { getImageUrl } from '$lib/utils';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import toast from 'svelte-french-toast';
 	import { Icon, Pencil } from 'svelte-hero-icons';
 	import type { PageData } from './$types';
 
@@ -19,14 +21,16 @@
 		}
 	};
 
-	const submitUpdateProfile = () => {
+	const submitUpdateProfile: SubmitFunction = () => {
 		loading = true;
 		return async ({ result }) => {
 			switch (result.type) {
 				case 'success':
 					await invalidateAll();
+					toast.success('Success updating profile');
 					break;
 				case 'error':
+					toast.error('Error updating profile');
 					break;
 				default:
 					await applyAction(result);

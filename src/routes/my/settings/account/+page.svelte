@@ -3,6 +3,8 @@
 	import { invalidateAll } from '$app/navigation';
 	import Input from '$lib/components/Input.svelte';
 	import Modal from '$lib/components/Modal.svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import toast from 'svelte-french-toast';
 	import type { PageData } from '../$types';
 	import type { ActionData } from './$types';
 
@@ -12,7 +14,7 @@
 	let usernameModalOpen = $state(false);
 	let loading = $state(false);
 
-	const submitUpdateEmail = () => {
+	const submitUpdateEmail: SubmitFunction = () => {
 		loading = true;
 		emailModalOpen = true;
 
@@ -20,8 +22,10 @@
 			switch (result.type) {
 				case 'success':
 					await invalidateAll();
+					toast.success('Success updating email');
 					break;
 				case 'error':
+					toast.error('Error updating email');
 					break;
 				default:
 					await applyAction(result);
@@ -32,7 +36,7 @@
 		};
 	};
 
-	const submitUpdateUsername = () => {
+	const submitUpdateUsername: SubmitFunction = () => {
 		loading = true;
 		usernameModalOpen = true;
 
@@ -40,8 +44,10 @@
 			switch (result.type) {
 				case 'success':
 					await invalidateAll();
+					toast.success('Success updating username');
 					break;
 				case 'error':
+					toast.error('Error updating username');
 					break;
 				default:
 					await applyAction(result);
