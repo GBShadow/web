@@ -1,8 +1,32 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { Input } from '$lib/components';
+	import { registerUserSchema } from '$lib/schemas';
+	import { getToastState } from '$lib/toast-state.svelte';
+	import { superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
+	import type { PageData } from './$types';
 
-	let { form }: { form: FormData } = $props();
+	let { data }: { data: PageData } = $props();
+	const toastState = getToastState();
+
+	const { form, enhance, delayed, submitting, errors } = superForm(data.form, {
+		validators: zodClient(registerUserSchema),
+		onError: ({ result }) => {
+			toastState.add('Error', result.error.message, 'error');
+		},
+		onUpdate({ result }) {
+			switch (result.type) {
+				case 'success':
+					toastState.add('Success', 'User register', 'success');
+					break;
+				case 'failure':
+					toastState.add('Error', 'User register', 'error');
+					break;
+				default:
+					break;
+			}
+		}
+	});
 </script>
 
 <div class="flex h-full w-full flex-col items-center">
@@ -21,23 +45,47 @@
 		class="flex w-full flex-col items-center space-y-2 pt-4"
 		use:enhance
 	>
-		<Input id="name" label="Name" value={form?.data?.name} errors={form?.errors?.name} />
+		<Input
+			id="name"
+			label="Name"
+			bind:value={$form.name}
+			errors={$errors?.name}
+			disabled={$submitting}
+		/>
 		<Input
 			type="email"
 			id="email"
 			label="Email"
-			value={form?.data?.email}
-			errors={form?.errors?.email}
+			bind:value={$form.email}
+			errors={$errors.email}
+			disabled={$submitting}
 		/>
-		<Input type="password" id="password" label="Password" errors={form?.errors?.password} />
+		<Input
+			type="password"
+			id="password"
+			label="Password"
+			password
+			bind:value={$form.password}
+			errors={$errors.password}
+			disabled={$submitting}
+		/>
 		<Input
 			type="password"
 			id="passwordConfirm"
 			label="Confirm Password"
-			errors={form?.errors?.passwordConfirm}
+			password
+			bind:value={$form.passwordConfirm}
+			errors={$errors?.passwordConfirm}
+			disabled={$submitting}
 		/>
 		<div class="w-full max-w-md pt-2">
-			<button class="btn btn-primary w-full">Register</button>
+			<button class="btn btn-primary w-full" disabled={$submitting}>
+				{#if $delayed}
+					<span class="loading loading-dots"></span>
+				{:else}
+					Register
+				{/if}
+			</button>
 		</div>
 	</form>
 </div>

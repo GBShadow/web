@@ -18,7 +18,7 @@
 			{/if}
 
 			{#each projects as project}
-				<MyProjectItem {project} />
+				<MyProjectItem {project} form={data.form} />
 				<div class="divider mb-2 mt-0"></div>
 			{/each}
 		{/if}

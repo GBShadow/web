@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
+	import { applyAction } from '$app/forms';
+	import { deleteProjectSchema } from '$lib/schemas';
 	import { getImageUrl } from '$lib/utils';
-	import type { SubmitFunction } from '@sveltejs/kit';
 	import toast from 'svelte-french-toast';
+	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import Modal from './Modal.svelte';
 
 	type ProjectProps = {
@@ -15,32 +15,34 @@
 		description: string;
 	};
 
-	let { project }: { project: ProjectProps } = $props();
+	let {
+		project,
+		form: formData
+	}: { project: ProjectProps; form: SuperValidated<Infer<typeof deleteProjectSchema>> } = $props();
 	let deleteProjectModal = $state(false);
-	let loading = $state(false);
 
-	const submitDeleteProject: SubmitFunction = () => {
-		return async ({ result }) => {
-			loading = true;
+	const { enhance, delayed, submitting } = superForm(formData, {
+		onSubmit: () => {
 			deleteProjectModal = true;
+		},
+		onError: ({ result }) => {
+			toast.error(result.error.message);
+		},
+		onUpdate({ result }) {
 			switch (result.type) {
 				case 'success':
-					await invalidateAll();
 					toast.success('Project deleted with success.');
-
+					applyAction(result);
+					deleteProjectModal = false;
 					break;
-				case 'error':
+				case 'failure':
 					toast.error('Could not delete project. Try again later.');
 					break;
 				default:
-					await applyAction(result);
 					break;
 			}
-
-			loading = false;
-			deleteProjectModal = false;
-		};
-	};
+		}
+	});
 </script>
 
 <div class="flex h-28 w-full items-center justify-between">
@@ -75,10 +77,18 @@
 			{/snippet}
 			{#snippet actions()}
 				<div class="flex w-full items-center justify-center space-x-2">
-					<label for={project.id} class="btn btn-outline">Cancel</label>
-					<form action="?/deleteProject" method="POST" use:enhance={submitDeleteProject}>
-						<input type="hidden" name="id" value={project.id} />
-						<button type="submit" class="btn btn-error">Delete</button>
+					<form method="dialog">
+						<button class="btn btn-outline" disabled={$submitting}>Cancel</button>
+					</form>
+					<form action="?/deleteProject" method="POST" use:enhance>
+						<input type="hidden" name="id" bind:value={project.id} />
+						<button type="submit" class="btn btn-error" disabled={$submitting}>
+							{#if $delayed}
+								<span class="loading loading-dots"></span>
+							{:else}
+								<span>Delete</span>
+							{/if}
+						</button>
 					</form>
 				</div>
 			{/snippet}

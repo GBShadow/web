@@ -1,7 +1,8 @@
 <script lang="ts">
+	import Toaster from '$lib/components/Toaster.svelte';
+	import { setToastState } from '$lib/toast-state.svelte';
 	import { getImageUrl } from '$lib/utils';
 	import type { Snippet } from 'svelte';
-	import { Toaster } from 'svelte-french-toast';
 	import { CodeBracket, Icon } from 'svelte-hero-icons';
 	import '../app.css';
 	import type { LayoutData } from './$types';
@@ -12,6 +13,8 @@
 	};
 
 	let { children, data }: Props = $props();
+
+	setToastState();
 </script>
 
 <Toaster />

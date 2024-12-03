@@ -1,33 +1,31 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { applyAction } from '$app/forms';
 	import { Input } from '$lib/components';
-	import type { SubmitFunction } from '@sveltejs/kit';
-	import toast from 'svelte-french-toast';
-	import type { ActionData } from './$types';
-	let { form }: { form: ActionData } = $props();
+	import { loginUserSchema } from '$lib/schemas';
+	import toast, { LoaderIcon } from 'svelte-french-toast';
+	import { superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
+	import type { ActionData, PageData } from './$types';
+	let { data, actionData }: { data: PageData; actionData: ActionData } = $props();
 
-	let loading = false;
-	const submitLogin: SubmitFunction = () => {
-		loading = true;
-		return async ({ result, update }) => {
-			switch (result.type) {
-				case 'success':
-					await update();
-					toast.success('Login successful');
-					break;
-				case 'failure':
-					toast.error('Invalid credentials');
-					await update();
-					break;
-				case 'error':
-					toast.error(result.error.message);
-					break;
-				default:
-					await update();
+	const { form, enhance, errors, delayed, submitting } = superForm(data.form, {
+		validators: zodClient(loginUserSchema),
+		onError: ({ result }) => {
+			toast.error(result.error.message);
+		},
+		onUpdate({ form, result }) {
+			const errors = Object.entries(form.errors);
+
+			if (result.type === 'failure') {
+				errors.forEach(([key, errorMessages]) => {
+					errorMessages.forEach((message) => {
+						toast.error(message);
+					});
+				});
 			}
-			loading = false;
-		};
-	};
+			applyAction(result);
+		}
+	});
 </script>
 
 <div class="flex h-full w-full flex-col items-center">
@@ -44,29 +42,22 @@
 		action="?/login"
 		method="POST"
 		class="flex w-full flex-col items-center space-y-2 pt-4"
-		use:enhance={submitLogin}
+		use:enhance
 	>
 		<div class="form-control w-full max-w-md">
-			<label for="email" class="label pb-1 font-medium">
-				<span class="label-text">E-mail</span>
-			</label>
 			<Input
 				type="email"
 				id="email"
 				label="Email"
-				value={form?.data?.email ?? ''}
-				errors={form?.errors?.email}
+				errors={$errors?.email}
+				bind:value={$form.email}
 			/>
-		</div>
-		<div class="form-control w-full max-w-md">
-			<label for="password" class="label pb-1 font-medium">
-				<span class="label-text">Password</span>
-			</label>
-			<input
+			<Input
 				type="password"
-				name="password"
 				id="password"
-				class="input input-bordered w-full max-w-md"
+				label="Password"
+				errors={$errors?.password}
+				bind:value={$form.password}
 			/>
 		</div>
 		<div class="w-full max-w-md">
@@ -79,10 +70,16 @@
 		</div>
 
 		<div class="w-full max-w-md pt-2">
-			<button class="btn btn-primary w-full">Login</button>
+			<button class="btn btn-primary w-full" disabled={$submitting}>
+				{#if $delayed}
+					<LoaderIcon />
+				{:else}
+					Login
+				{/if}
+			</button>
 		</div>
 
-		{#if form?.notVerified}
+		{#if actionData?.notVerified}
 			<div role="alert" class="alert alert-error w-full max-w-md shadow-lg">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"

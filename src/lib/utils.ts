@@ -38,3 +38,5 @@ export const validateData = async <T extends AnyZodObject>(formData: FormData, s
 		};
 	}
 };
+
+export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));

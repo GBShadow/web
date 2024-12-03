@@ -1,15 +1,36 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
+	import { applyAction } from '$app/forms';
 	import Input from '$lib/components/Input.svelte';
+	import { updateProfileSchema } from '$lib/schemas';
+	import { getToastState } from '$lib/toast-state.svelte';
 	import { getImageUrl } from '$lib/utils';
-	import type { SubmitFunction } from '@sveltejs/kit';
-	import toast from 'svelte-french-toast';
 	import { Icon, Pencil } from 'svelte-hero-icons';
+	import { superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
 	import type { PageData } from './$types';
 
-	let { data, form }: { data: PageData; form: FormData } = $props();
-	let loading = $state(false);
+	let { data }: { data: PageData } = $props();
+	const toastState = getToastState();
+
+	const { form, enhance, errors, delayed, submitting } = superForm(data.form, {
+		validators: zodClient(updateProfileSchema),
+		onError: ({ result }) => {
+			toastState.add('Error', result.error.message, 'error');
+		},
+		onUpdate({ result }) {
+			switch (result.type) {
+				case 'success':
+					toastState.add('Success', 'Updating profile', 'success');
+					applyAction(result);
+					break;
+				case 'failure':
+					toastState.add('Error', 'Updating profile', 'error');
+					break;
+				default:
+					break;
+			}
+		}
+	});
 
 	const showPreview = (event: Event) => {
 		const target = event.target as HTMLInputElement;
@@ -20,24 +41,6 @@
 			preview.src = src;
 		}
 	};
-
-	const submitUpdateProfile: SubmitFunction = () => {
-		loading = true;
-		return async ({ result }) => {
-			switch (result.type) {
-				case 'success':
-					await invalidateAll();
-					toast.success('Success updating profile');
-					break;
-				case 'error':
-					toast.error('Error updating profile');
-					break;
-				default:
-					await applyAction(result);
-			}
-			loading = false;
-		};
-	};
 </script>
 
 <div class="flex h-full w-full flex-col">
@@ -46,7 +49,7 @@
 		method="POST"
 		enctype="multipart/form-data"
 		class="flex w-full flex-col space-y-2"
-		use:enhance={submitUpdateProfile}
+		use:enhance
 	>
 		<h3 class="text-2xl font-medium">Update Profile</h3>
 		<div class="form-control w-full max-w-lg">
@@ -77,10 +80,10 @@
 				accept="image/*"
 				hidden
 				onchange={showPreview}
-				disabled={loading}
+				disabled={$submitting}
 			/>
-			{#if form?.errors?.avatar}
-				{#each form?.errors?.avatar as error}
+			{#if $errors?.avatar}
+				{#each $errors?.avatar as error}
 					<label for="avatar" class="label py-0 pt-1">
 						<span class="label-text-alt text-error">
 							{error}
@@ -92,13 +95,17 @@
 		<Input
 			label="Name"
 			name="name"
-			value={data?.user?.name}
-			disabled={loading}
-			errors={form?.errors?.name}
+			bind:value={$form.name}
+			disabled={$submitting}
+			errors={$errors.name}
 		/>
 		<div class="w-full max-w-lg pt-3">
-			<button class="btn btn-primary w-full max-w-lg" type="submit" disabled={loading}>
-				<span>Update Profile</span>
+			<button class="btn btn-primary w-full max-w-lg" type="submit" disabled={$submitting}>
+				{#if $delayed}
+					<span class="loading loading-dots"></span>
+				{:else}
+					<span>Update Profile</span>
+				{/if}
 			</button>
 		</div>
 	</form>

@@ -2,7 +2,7 @@
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 
 	let {
-		value,
+		value = $bindable(),
 		placeholder,
 		id,
 		label,

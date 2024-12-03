@@ -1,62 +1,78 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
 	import Input from '$lib/components/Input.svelte';
 	import Modal from '$lib/components/Modal.svelte';
-	import type { SubmitFunction } from '@sveltejs/kit';
+	import { updateEmailSchema, updateUsernameSchema } from '$lib/schemas';
+	import { getToastState } from '$lib/toast-state.svelte';
 	import toast from 'svelte-french-toast';
-	import type { PageData } from '../$types';
-	import type { ActionData } from './$types';
+	import { superForm } from 'sveltekit-superforms';
+	import { zodClient } from 'sveltekit-superforms/adapters';
+	import type { PageData } from './$types';
 
-	let { data, form }: { data: PageData; form: ActionData } = $props();
-
+	let { data }: { data: PageData } = $props();
+	const toastState = getToastState();
 	let emailModalOpen = $state(false);
 	let usernameModalOpen = $state(false);
-	let loading = $state(false);
 
-	const submitUpdateEmail: SubmitFunction = () => {
-		loading = true;
-		emailModalOpen = true;
-
-		return async ({ result }) => {
+	const {
+		form: formUpdateEmail,
+		errors: errorsUpdateEmail,
+		delayed: delayedUpdateEmail,
+		enhance: enhanceUpdateEmail,
+		submitting: submittingUpdateEmail
+	} = superForm(data.formUpdateEmail, {
+		validators: zodClient(updateEmailSchema),
+		taintedMessage: 'Please enter your new e-mail',
+		onSubmit: () => {
+			emailModalOpen = true;
+		},
+		onError: ({ result }) => {
+			toastState.add('Error', result.error.message, 'error');
+		},
+		onUpdate({ result }) {
 			switch (result.type) {
 				case 'success':
-					await invalidateAll();
-					toast.success('Success updating email');
+					toastState.add('Success', 'Updating e-mail', 'success');
+					usernameModalOpen = false;
 					break;
-				case 'error':
+				case 'failure':
+					toastState.add('Error', 'Updating e-mail', 'error');
+					break;
+				default:
+					break;
+			}
+		}
+	});
+
+	const {
+		form: formUpdateUsername,
+		errors: errorsUpdateUsername,
+		delayed: delayedUpdateUsername,
+		enhance: enhanceUpdateUsername,
+		submitting: submittingUpdateUsername
+	} = superForm(data.formUpdateUsername, {
+		taintedMessage: 'Please enter your new username',
+		validators: zodClient(updateUsernameSchema),
+		onSubmit: () => {
+			usernameModalOpen = true;
+		},
+		onError: ({ result }) => {
+			console.log('Error', result);
+		},
+		onUpdate({ result }) {
+			switch (result.type) {
+				case 'success':
+					toastState.add('Success', 'Updating username', 'success');
+					usernameModalOpen = false;
+					break;
+				case 'failure':
+					toastState.add('Error', 'Updating username', 'error');
 					toast.error('Error updating email');
 					break;
 				default:
-					await applyAction(result);
 					break;
 			}
-			loading = false;
-			emailModalOpen = false;
-		};
-	};
-
-	const submitUpdateUsername: SubmitFunction = () => {
-		loading = true;
-		usernameModalOpen = true;
-
-		return async ({ result }) => {
-			switch (result.type) {
-				case 'success':
-					await invalidateAll();
-					toast.success('Success updating username');
-					break;
-				case 'error':
-					toast.error('Error updating username');
-					break;
-				default:
-					await applyAction(result);
-					break;
-			}
-			loading = false;
-			usernameModalOpen = false;
-		};
-	};
+		}
+	});
 </script>
 
 <div class="flex h-full w-full flex-col space-y-12">
@@ -70,18 +86,22 @@
 			{#snippet heading()}
 				<h3>Change Your Email</h3>
 			{/snippet}
-			<form action="?/updateEmail" method="POST" class="space-y-2" use:enhance={submitUpdateEmail}>
+			<form action="?/updateEmail" method="POST" class="space-y-2" use:enhanceUpdateEmail>
 				<Input
 					id="email"
 					type="email"
 					label="Enter your new email address"
 					required
-					value={form?.data?.email}
-					disabled={loading}
-					errors={form?.errors?.email}
+					bind:value={$formUpdateEmail.email}
+					errors={$errorsUpdateEmail.email}
+					disabled={$submittingUpdateEmail}
 				/>
-				<button type="submit" disabled={loading} class="btn btn-primary w-full">
-					Change my email
+				<button type="submit" disabled={$submittingUpdateEmail} class="btn btn-primary w-full">
+					{#if $delayedUpdateEmail}
+						<span class="loading loading-dots"></span>
+					{:else}
+						Change my email
+					{/if}
 				</button>
 			</form>
 		</Modal>
@@ -102,24 +122,23 @@
 				{#snippet heading()}
 					<h3>Change Your Username</h3>
 				{/snippet}
-				<form
-					action="?/updateUsername"
-					method="POST"
-					class="space-y-2"
-					use:enhance={submitUpdateUsername}
-				>
+				<form action="?/updateUsername" method="POST" class="space-y-2" use:enhanceUpdateUsername>
 					<Input
 						id="username"
 						type="username"
 						label="Enter your new username"
 						required
-						value={form?.data?.username}
-						disabled={loading}
-						errors={form?.errors?.username}
+						bind:value={$formUpdateUsername.username}
+						disabled={$submittingUpdateUsername}
+						errors={$errorsUpdateUsername.username}
 					/>
-					<button type="submit" disabled={loading} class="btn btn-primary w-full"
-						>Change my username</button
-					>
+					<button type="submit" disabled={$submittingUpdateUsername} class="btn btn-primary w-full">
+						{#if $delayedUpdateUsername}
+							<span class="loading loading-dots"></span>
+						{:else}
+							Change my username
+						{/if}
+					</button>
 				</form>
 			</Modal>
 		</div>

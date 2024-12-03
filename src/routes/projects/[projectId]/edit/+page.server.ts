@@ -1,8 +1,9 @@
 import { updateProjectSchema } from '$lib/schemas';
-import { serializedNonPOJOs, validateData } from '$lib/utils';
+import { serializedNonPOJOs } from '$lib/utils';
 import { error, fail, redirect } from '@sveltejs/kit';
-import { serialize } from 'object-to-formdata';
 import type { ClientResponseError } from 'pocketbase';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
 import type { Actions, PageServerLoad } from './$types';
 
 type ProjectProps = {
@@ -23,12 +24,24 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	}
 
 	try {
-		const project = serializedNonPOJOs(
+		const projectData = serializedNonPOJOs(
 			await locals.pb.collection<ProjectProps>('projects').getOne(params.projectId)
 		);
 
+		const project = {
+			id: projectData.id,
+			collectionId: projectData.collectionId,
+			name: projectData.name,
+			tagline: projectData.tagline,
+			description: projectData.description,
+			user: projectData.user,
+			url: projectData.url
+		};
+
+		const form = await superValidate(project, zod(updateProjectSchema));
+
 		if (locals.user.id === project.user) {
-			return { project };
+			return { project: projectData, form };
 		} else {
 			throw error(403, 'Forbidden');
 		}
@@ -42,26 +55,15 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 
 export const actions: Actions = {
 	updateProject: async ({ locals, request, params }) => {
-		const body = await request.formData();
+		const form = await superValidate(request, zod(updateProjectSchema));
 
-		const thumb = body.get('thumbnail') as File;
-
-		if (thumb.size === 0) {
-			body.delete('thumbnail');
-		}
-
-		const { formData, errors } = await validateData(body, updateProjectSchema);
-		const { thumbnail, ...rest } = formData;
-
-		if (errors) {
+		if (!form.valid) {
 			return fail(400, {
-				data: rest,
-				errors: errors.fieldErrors
+				form
 			});
 		}
-
 		try {
-			await locals.pb.collection('projects').update(params.projectId, serialize(formData));
+			await locals.pb.collection('projects').update(params.projectId, form.data);
 		} catch (_err) {
 			const err = _err as ClientResponseError;
 			console.log('Error: ', err);

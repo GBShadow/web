@@ -1,22 +1,34 @@
 import { updateEmailSchema, updateUsernameSchema } from '$lib/schemas';
-import { validateData } from '$lib/utils';
 import { error, fail } from '@sveltejs/kit';
 import { ClientResponseError } from 'pocketbase';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
 import type { Actions } from './$types';
+
+export const load = async () => {
+	const formUpdateEmail = await superValidate(zod(updateEmailSchema));
+	const formUpdateUsername = await superValidate(zod(updateUsernameSchema));
+
+	return {
+		formUpdateEmail,
+		formUpdateUsername
+	};
+};
 
 export const actions: Actions = {
 	updateEmail: async ({ locals, request }) => {
-		try {
-			const { formData, errors } = await validateData(await request.formData(), updateEmailSchema);
+		if (!locals?.user) return;
 
-			if (errors) {
+		try {
+			const form = await superValidate(request, zod(updateEmailSchema));
+
+			if (!form.valid) {
 				return fail(400, {
-					data: formData,
-					errors: errors.fieldErrors
+					form
 				});
 			}
 
-			await locals.pb.collection('users').requestEmailChange(formData.email);
+			await locals.pb.collection('users').requestEmailChange(form.data.email);
 		} catch (_err) {
 			const err = _err as ClientResponseError;
 			console.log(err);
@@ -30,16 +42,16 @@ export const actions: Actions = {
 	updateUsername: async ({ locals, request }) => {
 		if (!locals?.user) return;
 
-		const { formData, errors } = await validateData(await request.formData(), updateUsernameSchema);
+		const form = await superValidate(request, zod(updateUsernameSchema));
 
-		if (errors) {
+		if (!form.valid) {
 			return fail(400, {
-				data: formData,
-				errors: errors.fieldErrors
+				form
 			});
 		}
 
-		const usernameSanitized = (formData.username as string).toLowerCase().replace(/\s/g, '');
+		const usernameSanitized = form.data.username.toLowerCase().replace(/\s/g, '');
+
 		try {
 			await locals.pb.collection('users').getFirstListItem(`username = "${usernameSanitized}"`);
 		} catch (_err) {
@@ -50,7 +62,10 @@ export const actions: Actions = {
 						.collection('users')
 						.update(locals?.user?.id, { username: usernameSanitized });
 					locals.user.username = username;
-					return { success: true };
+					return {
+						form,
+						success: true
+					};
 				} catch (_e) {
 					const e = _e as ClientResponseError;
 					console.log('Error: ', e);

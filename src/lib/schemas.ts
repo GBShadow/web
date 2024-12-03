@@ -4,7 +4,7 @@ export const loginUserSchema = z.object({
 	email: z
 		.string({ required_error: 'Email is required' })
 		.email({ message: 'Email must be a valid email.' }),
-	password: z.string({ required_error: 'Password is required' })
+	password: z.string({ required_error: 'Password is required' }).min(8)
 });
 
 export const registerUserSchema = z
@@ -75,7 +75,7 @@ export const createProjectSchema = z.object({
 		.max(512, { message: 'Description must be less than 512 characters' })
 		.trim(),
 	thumbnail: z
-		.instanceof(Blob)
+		.instanceof(File)
 		.optional()
 		.superRefine((val, ctx) => {
 			if (val) {
@@ -99,6 +99,10 @@ export const createProjectSchema = z.object({
 
 export const updateProjectSchema = createProjectSchema.omit({ user: true });
 
+export const deleteProjectSchema = z.object({
+	id: z.string({ required_error: 'ID is required' })
+});
+
 export const updateEmailSchema = z.object({
 	email: z
 		.string({ required_error: 'Email is required' })
@@ -111,6 +115,12 @@ export const updateUsernameSchema = z.object({
 		.min(3, { message: 'Username must be at least 3 characters' })
 		.max(24, { message: 'Username must be 24 characters or less' })
 		.regex(/^[a-zA-Z0-9]*$/, { message: 'Username can only contain letters or numbers.' })
+});
+
+export const resetPasswordSchema = z.object({
+	email: z
+		.string({ required_error: 'Email is required' })
+		.email({ message: 'Email must be a valid email' })
 });
 
 export const updatePasswordSchema = z
@@ -151,7 +161,7 @@ export const updateProfileSchema = z.object({
 		.max(64, { message: 'Name must be 64 characters or less' })
 		.trim(),
 	avatar: z
-		.instanceof(Blob)
+		.instanceof(File)
 		.optional()
 		.superRefine((val, ctx) => {
 			if (val) {
