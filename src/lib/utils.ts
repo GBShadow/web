@@ -1,12 +1,12 @@
 import type { AnyZodObject, ZodError } from 'zod';
+const crypto = await import('node:crypto');
 
-const { randomBytes } = await import('node:crypto');
 export const serializedNonPOJOs = <T>(obj: T) => {
 	return structuredClone(obj) as T;
 };
 
 export const generateUsername = (name: string) => {
-	const id = randomBytes(2).toString('hex');
+	const id = crypto.randomBytes(2).toString('hex');
 	return `${name.slice(0, 5)}${id}`;
 };
 

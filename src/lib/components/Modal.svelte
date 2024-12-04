@@ -10,15 +10,19 @@
 		actions?: Snippet;
 	};
 	let { checked, label, trigger, heading, children, actions }: ModalProps = $props();
+
+	const toggle = () => {
+		const dialog = document.getElementById(label) as HTMLDialogElement;
+		dialog.showModal();
+	};
 </script>
 
-<label for={label}>
+<button onclick={toggle}>
 	{@render trigger()}
-</label>
+</button>
 
-<input type="checkbox" id={label} class="modal-toggle" {checked} />
-<label for={label} class="modal modal-bottom sm:modal-middle">
-	<label for="" class="modal-box">
+<dialog id={label} open={checked} class="modal modal-bottom sm:modal-middle">
+	<div class="modal-box">
 		<div class="text-center text-xl font-bold">
 			{@render heading()}
 		</div>
@@ -28,5 +32,5 @@
 		<div class="modal-action justify-center">
 			{@render actions?.()}
 		</div>
-	</label>
-</label>
+	</div>
+</dialog>

@@ -21,11 +21,7 @@
 	</label>
 
 	<label
-		class={`flex items-center gap-2 ${
-			type === 'file'
-				? 'file-input file-input-bordered w-full max-w-lg'
-				: 'input input-bordered w-full max-w-lg'
-		}`}
+		class={`flex w-full max-w-lg items-center gap-2 ${type !== 'file' && 'input input-bordered'}`}
 	>
 		<input
 			{id}
@@ -33,7 +29,7 @@
 			type={password ? toggleType : type}
 			bind:value
 			name={id}
-			class="grow"
+			class={`grow ${type === 'file' && 'file-input file-input-bordered'}`}
 			{...props}
 		/>
 		{#if password}

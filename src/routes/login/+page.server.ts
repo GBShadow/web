@@ -1,4 +1,5 @@
 import { loginUserSchema } from '$lib/schemas';
+import { hashPassword } from '$lib/server/utils.js';
 import { error, fail, redirect, type Actions } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
@@ -24,7 +25,9 @@ export const actions: Actions = {
 				});
 			}
 
-			await locals.pb.collection('users').authWithPassword(form.data.email, form.data.password);
+			await locals.pb
+				.collection('users')
+				.authWithPassword(form.data.email, hashPassword(form.data.password));
 
 			if (!locals.pb?.authStore?.model?.verified) {
 				locals.pb.authStore.clear();
